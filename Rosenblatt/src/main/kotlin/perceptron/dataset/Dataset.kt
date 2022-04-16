@@ -2,8 +2,8 @@ package perceptron.dataset
 
 class Dataset(
     val inputs: ArrayList<Int>,
-    val results: ArrayList<Int>,
-    val result: Int? = null
+    val result: Int?,
+    val results: ArrayList<Int> = arrayListOf()
 ) {
 
     init {
@@ -12,6 +12,14 @@ class Dataset(
         if (result != null) results[result] = 1
     }
 }
+
+/*
+ 111
+ 001
+ 001
+ 001
+ 001
+*/
 
 val values = hashMapOf(
     "111001001001001" to 7,

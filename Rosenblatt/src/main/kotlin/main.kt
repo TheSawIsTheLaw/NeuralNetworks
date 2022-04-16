@@ -1,5 +1,6 @@
 import perceptron.Perceptron
 import perceptron.dataset.Dataset
+import perceptron.dataset.moreValuesXD
 import perceptron.dataset.values
 import perceptron.neurons.ANeuron
 import java.util.*
@@ -7,11 +8,11 @@ import kotlin.collections.ArrayList
 import kotlin.math.pow
 
 val dataset = values.map {
-    Dataset(ArrayList(it.key.map { innerIt -> innerIt.digitToInt() }), ArrayList(it.value))
+    Dataset(ArrayList(it.key.map { innerIt -> innerIt.digitToInt() }), it.value)
 }
 
-val testDataset = values.map {
-    Dataset(ArrayList(it.key.map { innerIt -> innerIt.digitToInt() }), ArrayList(it.value))
+val testDataset = moreValuesXD.map {
+    Dataset(ArrayList(it.key.map { innerIt -> innerIt.digitToInt() }), it.value)
 }
 
 fun trainPerceptron(): Perceptron {
@@ -21,7 +22,7 @@ fun trainPerceptron(): Perceptron {
     println("Generating layers...")
 
     for (i in 0 until inputCount) {
-        neuralNetwork.sLayer.addNeuron({ it }, { it })
+        neuralNetwork.sLayer.addNeuron({ it -> it }, { it -> it })
     }
 
     println("Done.")
@@ -63,9 +64,9 @@ fun test(neuronNetwork: Perceptron) {
             if (res != data.results[index].toDouble())
                 misc++
         }
-
-        println("Test ended. Accuracy: ${(totalClassifications - misc) / totalClassifications * 100}")
     }
+
+    println("Test ended. Accuracy: ${(totalClassifications - misc).toDouble() / totalClassifications * 100}")
 }
 
 fun main() {

@@ -2,7 +2,6 @@ package perceptron
 
 import perceptron.dataset.Dataset
 import perceptron.layers.ALayer
-import perceptron.layers.Layer
 import perceptron.layers.RLayer
 import perceptron.layers.SLayer
 import perceptron.neurons.ANeuron
@@ -46,10 +45,13 @@ class Perceptron(
             }
 
             currentEpoch++
-            if (currentEpoch % 10 == 0) println("Current epoch is: $currentEpoch; Wrong classifications: $wrongClassifications")
+            println("Current epoch is: $currentEpoch; Wrong classifications: $wrongClassifications")
 
             if (minimumWrongClassifications <= wrongClassifications) stabilityTime++
-            else minimumWrongClassifications = wrongClassifications.also { stabilityTime = 0 }
+            else {
+                minimumWrongClassifications = wrongClassifications
+                stabilityTime = 0
+            }
         }
 
         println("Training ended in $currentEpoch epochs\n\nResult accuracy in training is ${(totalClassifications - minimumWrongClassifications) / totalClassifications * 100}")
@@ -75,6 +77,7 @@ class Perceptron(
 
         val toRemove = MutableList(aLayer.neurons.size) { false }
 
+        // Мёртвые -- те нейроны, которые не меняют значения своих весов, т.е. от них не зависит результат распознавания
         println("***********")
         println("Counting dead neurons from A Layer")
 
@@ -89,11 +92,13 @@ class Perceptron(
         println("${toRemove.count { !it }} neurons found to remove")
 
         println("**********")
-        println("Counting correlating ceurons from a layer...")
+        println("Counting correlating neurons from a layer...")
 
+        // Коррелянты - пары нейронов, выдающие одинаковый результат
         for (i in 0 until activations.size - 1) {
             if (!toRemove[i]) {
                 for (j in i + 1 until activations.size) {
+                    // лучше использовать формулу корреляционной зависимости
                     if (activations[j] == activations[i]) toRemove[j] = true
                 }
             }
