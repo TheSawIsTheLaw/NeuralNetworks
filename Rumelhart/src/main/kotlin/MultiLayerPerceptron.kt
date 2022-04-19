@@ -1,4 +1,5 @@
 import java.util.*
+import kotlin.math.pow
 
 class MultiLayerPerceptron(
     private val inputAmount: Int, private val outputAmount: Int, hiddenNeuronAmount: Int = 4,
@@ -8,26 +9,9 @@ class MultiLayerPerceptron(
     private val hiddenLayer = HiddenLayer(inputAmount, hiddenNeuronAmount)
     private val outputLayer = OutputLayer(hiddenNeuronAmount, outputAmount)
 
-    init {
-        if (inputAmount <= 0) {
-            throw IllegalArgumentException("There must be at least one input. Specified input amount: $inputAmount")
-        }
+    var lastOutputResult: List<Double> = listOf()
 
-        if (outputAmount <= 0) {
-            throw IllegalArgumentException("There must be at least one output. Specified output amount: $outputAmount")
-        }
-    }
-
-    fun map(input: List<Double>): List<Double> {
-        if (input.size != inputAmount) {
-            throw IllegalArgumentException("The input must have a size of $inputAmount. Actual size: ${input.size}")
-        }
-
-        return outputLayer.feedForward(hiddenLayer.feedForward(input.normalize(minValue, maxValue)))
-            .denormalize(minValue, maxValue)
-    }
-
-    fun learn(input: Pair<List<Double>, List<Double>>): Double {
+    private fun learn(input: Pair<List<Double>, List<Double>>): Double {
         if (input.first.size != inputAmount) {
             throw IllegalArgumentException("The input must have a size of $inputAmount. Actual size: ${input.first.size}")
         }
@@ -42,9 +26,11 @@ class MultiLayerPerceptron(
         val hiddenResult = hiddenLayer.feedForward(input.first.normalize(minValue, maxValue))
         val outputResult = outputLayer.feedForward(hiddenResult)
 
-        val error = (0.5 * Math.pow(outputResult.mapIndexed { index: Int, result: Double ->
+        lastOutputResult = outputResult
+
+        val error = (0.5 * outputResult.mapIndexed { index: Int, result: Double ->
             result - input.second.normalize(minValue, maxValue)[index]
-        }.sum(), 2.0))
+        }.sum().pow(2.0))
 
         val outputDeltas = outputLayer.calculateDeltas(input.second.normalize(minValue, maxValue))
         val hiddenDeltas = hiddenLayer.calculateDeltas(outputDeltas, outputLayer)
@@ -56,24 +42,7 @@ class MultiLayerPerceptron(
     }
 
     fun learnAll(inputs: List<Pair<List<Double>, List<Double>>>): Double {
-        return inputs.map { learn(it) }.sum()
-    }
-
-    fun learnAllFor(
-        inputs: List<Pair<List<Double>, List<Double>>>, epochs: Int,
-        progressListener: ((epoch: Int, error: Double) -> Unit)? = null
-    ): List<Double> {
-        val result = ArrayList<Double>(epochs)
-        var currentEpoch = 0
-
-        for (i in epochs downTo 0) {
-            result += learnAll(inputs)
-            currentEpoch++
-
-            progressListener?.invoke(currentEpoch, result.last())
-        }
-
-        return result
+        return inputs.sumOf { learn(it) }
     }
 
     fun learnAllUntil(

@@ -1,13 +1,9 @@
 abstract class Layer(private val inputAmount: Int, private val outputAmount: Int) {
 
-    val neurons: List<Neuron>
-
-    init {
-        neurons = Array<Neuron>(outputAmount, { Neuron(inputAmount) }).toList()
-    }
+    val neurons: List<Neuron> = List(outputAmount) { Neuron(inputAmount) }
 
     fun feedForward(input: List<Double>): List<Double> {
-        return Array<Double>(outputAmount, { neurons[it].feedForward(input) }).toList()
+        return List(outputAmount) { neurons[it].feedForward(input) }
     }
 
     fun propagateBack(deltas: List<Double>, previousTransfers: List<Double>) {

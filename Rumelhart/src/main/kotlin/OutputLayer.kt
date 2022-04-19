@@ -1,4 +1,5 @@
-import java.util.*
+import kotlin.math.exp
+import kotlin.math.pow
 
 class OutputLayer(inputAmount: Int, outputAmount: Int) : Layer(inputAmount, outputAmount) {
 
@@ -11,7 +12,7 @@ class OutputLayer(inputAmount: Int, outputAmount: Int) : Layer(inputAmount, outp
         }
 
         return neurons.mapIndexed { index: Int, neuron: Neuron ->
-            val g = Math.exp(neuron.lastActivation) / Math.pow(Math.exp(neuron.lastActivation) + 1, 2.0)
+            val g = exp(neuron.lastActivation) / (Math.exp(neuron.lastActivation) + 1).pow(2.0)
             val delta = g * (neuron.lastTransfer - trainerValues[index])
 
             delta

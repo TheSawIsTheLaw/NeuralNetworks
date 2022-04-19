@@ -1,5 +1,4 @@
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
@@ -29,10 +28,10 @@ object CsvReader {
             }
         }.filterNotNull()
 
-        return CsvResult(data, classMap.invert())
+        return CsvResult(data)
     }
 
-    class CsvResult(val data: List<Pair<List<Double>, List<Double>>>, val classMap: Map<Double, String>) {
+    class CsvResult(val data: List<Pair<List<Double>, List<Double>>>) {
         fun calculateMinMax(): Pair<Double, Double> {
             if (data.isEmpty()) {
                 throw IllegalStateException("The data list cannot be empty")
@@ -53,26 +52,6 @@ object CsvReader {
 
         fun calculateOutputAmount(): Int {
             return 1
-        }
-
-        fun mapToClass(value: List<Double>): String {
-            if (classMap.isEmpty()) {
-                throw IllegalStateException("The class map cannot be empty")
-            }
-
-            var bestMatch = Double.MIN_VALUE
-            var lowestInaccuracy = Double.MAX_VALUE
-
-            classMap.keys.forEach {
-                val inaccuracy = Math.abs(Math.max(value.first(), it) - Math.min(value.first(), it))
-
-                if (inaccuracy < lowestInaccuracy) {
-                    lowestInaccuracy = inaccuracy
-                    bestMatch = it
-                }
-            }
-
-            return classMap.getOrElse(bestMatch) { throw IllegalStateException("No match found") }
         }
     }
 }

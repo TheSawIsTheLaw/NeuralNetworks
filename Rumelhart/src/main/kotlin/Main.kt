@@ -14,7 +14,7 @@ class Main(private val errors: List<Double>) : JFrame("Error function") {
         add(createChartPanel(), BorderLayout.CENTER)
 
         setSize(640, 480)
-        defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        defaultCloseOperation = EXIT_ON_CLOSE
         setLocationRelativeTo(null)
     }
 
@@ -42,20 +42,24 @@ class Main(private val errors: List<Double>) : JFrame("Error function") {
     companion object {
         @JvmStatic
         fun main(args: Array<String>) {
-            val csvData = CsvReader.read("zoo.csv")
+            val csvData = CsvReader.read("iris.csv")
             val minMax = csvData.calculateMinMax()
             val mlp = MultiLayerPerceptron(
                 csvData.calculateInputAmount(), csvData.calculateOutputAmount(),
                 hiddenNeuronAmount = 2, minValue = minMax.first, maxValue = minMax.second
             )
 
-            val errors = mlp.learnAllUntil(csvData.data, { it < 0.08 }, { epoch, error ->
+            val errors = mlp.learnAllUntil(csvData.data, { it < 0.07 }, { epoch, error ->
                 if (epoch % 100 == 0) {
                     println("Currently at epoch $epoch, with an error of $error")
                 }
             })
 
             SwingUtilities.invokeLater { Main(errors).isVisible = true }
+
+            val csvToCheck = CsvReader.read("irisToCheck.csv")
+            val result = mlp.learnAll(csvToCheck.data)
+            println("So... We've got: $result")
         }
     }
 }
